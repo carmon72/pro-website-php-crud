@@ -1,0 +1,787 @@
+body{font-family:'Segoe UI',sans-serif;display:flex;margin:0;}
+.sidebar{width:220px;background:#0b5cff;color:white;height:100vh;position:fixed;display:flex;flex-direction:column;}
+.sidebar .logo{padding:20px;font-size:22px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.2);}
+.sidebar a{color:white;text-decoration:none;padding:15px 20px;display:block;transition:0.2s;}
+.sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,0.15);}
+.main-content{margin-left:220px;padding:30px;width:100%;background:#f4f6f9;min-height:100vh;}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.top-bar button{background:#0b5cff;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;}
+
+/* Contenedor general */
+#items-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 15px;
+}
+
+/* Botones flotantes de acciones 
+.btn-action {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 4px;
+    font-size: 14px;
+}*/
+
+.btn-edit {
+    background-color: #4CAF50;
+    color: white;
+}
+.btn-edit:hover { background-color: #3e8e41; }
+
+.btn-delete {
+    background-color: #f44336;
+    color: white;
+}
+.btn-delete:hover { background-color: #d32f2f; }
+
+/* Tabla moderna */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: white;
+    margin-top: 15px;
+}
+
+table th, table td {
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 14px;
+}
+
+table th { background-color: #0b5cff; color: white; }
+table tr:nth-child(even) { background-color: #f4f6f9; }
+table tr:hover { background-color: #e2e8f0; }
+
+.badge {
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+/* Fondo del modal */
+#modal-form {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Contenido del modal */
+#modal-form .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    position: relative;
+    animation: slideDown 0.3s ease;
+}
+
+/* Inputs y textarea */
+#modal-form input, 
+#modal-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin: 8px 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+#modal-form input:focus,
+#modal-form textarea:focus {
+    outline: none;
+    border-color: #0b5cff;
+    box-shadow: 0 0 5px rgba(11,92,255,0.3);
+}
+
+/* Botón guardar */
+#modal-save-btn {
+    background-color: #0b5cff;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    transition: 0.2s;
+}
+
+#modal-save-btn:hover {
+    background-color: #084ecf;
+}
+
+/* Botón cerrar (X) */
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    color: #666;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    color: #000;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== Contact Form ===== */
+#contact-form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+#contact-form h1 {
+    font-size: 22px;
+    margin-bottom: 18px;
+    text-align: center;
+    color: #0b5cff;
+}
+
+#contact-form input,
+#contact-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+#contact-form input:focus,
+#contact-form textarea:focus {
+    outline: none;
+    border-color: #0b5cff;
+    box-shadow: 0 0 6px rgba(11,92,255,0.3);
+}
+
+#contact-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+#contact-form button {
+    width: 100%;
+    background-color: #0b5cff;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+#contact-form button:hover {
+    background-color: #084ecf;
+}
+
+/* === Contenedor principal de productos === */
+#products-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+}
+
+/* === Encabezado === */
+#products-container h1 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #0b5cff;
+  font-weight: 600;
+}
+
+/* === Formulario productos === */
+#form-producto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#form-producto input,
+#form-producto textarea,
+#form-producto button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#form-producto input:focus,
+#form-producto textarea:focus {
+  outline: none;
+  border-color: #0b5cff;
+  box-shadow: 0 0 0 2px rgba(11, 92, 255, 0.15);
+}
+
+#form-producto textarea {
+  grid-column: span 2;
+  resize: vertical;
+  min-height: 70px;
+}
+
+#form-producto button {
+  background: #0b5cff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  grid-column: span 2;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+#form-producto button:hover {
+  background: #0949cc;
+}
+
+/* === Tabla de productos === */
+#products-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#products-container th,
+#products-container td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+#products-container th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+#products-container tr:hover {
+  background: #f3f6ff;
+}
+
+/* === Botones de acción === */
+#products-container .btn-edit,
+#products-container .btn-delete {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: inline-block; /* 👈 clave para que no “salten” de fila */
+}
+
+#products-container .btn-edit {
+  background: #e0ecff;
+  color: #0b5cff;
+  margin-right: 4px;
+}
+
+#products-container .btn-delete {
+  background: #ffe0e0;
+  color: #d00000;
+}
+
+
+
+#products-container .btn-edit:hover {
+  background: #cddfff;
+}
+
+
+
+#products-container .btn-delete:hover {
+  background: #ffc7c7;
+}
+
+#products-container .btn-edit:active,
+#products-container .btn-delete:active {
+  transform: scale(0.97);
+}
+
+/* 🎨 Botón Limpiar - estilo moderno */
+.btn-limpiar {
+  background: #0066ff;
+  color: white;
+  font-weight: bold;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-limpiar:hover {
+  background: #004ecc;
+}
+
+.btn-limpiar:active {
+  transform: scale(0.95);
+  background: #f1f3f5;
+}
+
+/* === Imagen dentro de tabla === */
+#products-container td img {
+  border-radius: 6px;
+  object-fit: cover;
+  width: 40px;
+  height: 40px;
+}
+
+/* === Clientes (igual estilo que productos) === */
+#clients-container {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.06);
+}
+
+#clients-container h1 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #0b5cff;
+  font-weight: 600;
+}
+
+#form-cliente {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#form-cliente input,
+#form-cliente textarea,
+#form-cliente button {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#form-cliente textarea {
+  grid-column: span 2;
+  resize: vertical;
+  min-height: 60px;
+}
+
+#form-cliente button {
+  background: #0b5cff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  grid-column: span 2;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+#form-cliente button:hover {
+  background: #0949cc;
+}
+
+#clients-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#clients-container th,
+#clients-container td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.95rem;
+}
+
+#clients-container th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+#clients-container tr:hover {
+  background: #f3f6ff;
+}
+
+/* === Botones de acción en Clientes (mismo estilo que Productos) === */
+#clients-container .btn-edit,
+#clients-container .btn-delete {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-right: 6px;
+  transition: background 0.3s, transform 0.2s;
+}
+
+/* Botón Editar */
+#clients-container .btn-edit {
+  background-color: #3b82f6; /* azul */
+  color: #fff;
+}
+
+#clients-container .btn-edit:hover {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Botón Eliminar */
+#clients-container .btn-delete {
+  background-color: #ef4444; /* rojo */
+  color: #fff;
+}
+
+#clients-container .btn-delete:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* === Buscador === */
+#search-product,
+#search-client {
+  width: 100%;
+  max-width: 280px;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  margin: 0 auto 16px auto;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+#search-product:focus,
+#search-client:focus {
+  outline: none;
+  border-color: #2563eb;   /* Azul */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* === Paginación === */
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap; /* permite que se acomode en varias filas */
+  gap: 6px;
+  justify-content: center;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #f3f4f6;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  font-size: 14px;
+  min-width: 36px;
+}
+
+.pagination button:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.pagination button.active {
+  background: #2563eb;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* === Responsivo === */
+@media (max-width: 768px) {
+  #search-product,
+  #search-client {
+    max-width: 100%;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .pagination {
+    gap: 4px;
+  }
+
+  .pagination button {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  #search-product,
+  #search-client {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .pagination button {
+    padding: 5px 8px;
+    font-size: 12px;
+    min-width: 28px;
+  }
+}
+
+/* === Formulario productos === */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1; /* ocupa toda la fila */
+}
+
+.form-group.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+#form-producto input,
+#form-producto textarea,
+#form-producto select {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+#form-producto textarea {
+  min-width: 200px;
+  min-height: 38px;
+  resize: vertical;
+}
+
+/* === Botón principal === */
+.btn-primary {
+  background: #0066ff;
+  color: white;
+  font-weight: bold;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  background: #004ecc;
+}
+
+/* === Buscador === */
+.search-bar {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.search-bar input {
+  max-width: 300px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.exportar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;   /* espacio entre botones */
+    margin-top: 20px;
+}
+
+/* ============================= */
+/* Estilos para Dashboard (Inicio) */
+/* ============================= */
+
+/* Tarjetas KPI */
+.kpi-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.kpi-card span {
+  display: block;
+  font-size: 1.6rem;
+  color: #0b5cff;
+  margin-top: 0.5rem;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+}
+
+/* Tablas */
+.dashboard-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.table-card {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.table-card h2 {
+  margin-bottom: 1rem;
+  color: #0b5cff;
+}
+
+
+.reportes-container {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin: 20px auto;
+  max-width: 1000px;
+}
+
+.reportes-container h1 {
+  color: #0b5cff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.chart-box {
+  margin: 30px 0;
+  text-align: center;
+}
+
+.chart-box h2 {
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* === Sidebar Reportes Colapsable === */
+.sidebar-group {
+  margin-top: 12px;
+}
+
+.sidebar-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  color: #f0f0f0;
+  text-align: left;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.sidebar-toggle.active {
+  color: #ffffff;
+}
+
+.submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.submenu.open {
+  max-height: 200px; /* suficiente para 3-4 enlaces */
+}
+
+.submenu .sub-link {
+  display: block;
+  padding: 10px 40px;
+  color: #d1d5db;
+}
+
+.submenu .sub-link:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+#roles-container form select {
+  margin-right: 8px; /* separa el select del botón */
+}
+
+#roles-container form button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #0b5cff;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+#roles-container form button:hover {
+  background: #094bb5;
+}

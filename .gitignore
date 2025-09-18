@@ -1,0 +1,20 @@
+# Dependencias PHP
+/vendor/
+
+# Librerías JS/Node (si usas npm/yarn)
+node_modules/
+
+# Archivos de configuración sensibles
+.env
+*.log
+
+# Archivos temporales
+*.cache
+*.tmp
+
+# Carpeta de uploads (imágenes, PDFs subidos por usuarios)
+uploads/
+
+# Configuración de IDEs
+.vscode/
+.idea/
