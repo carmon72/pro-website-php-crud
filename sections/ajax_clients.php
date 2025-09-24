@@ -12,7 +12,14 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int)$_SESSION['user_id'];
+$role    = $_SESSION['role'] ?? 'lector'; // 🚦 Rol del usuario
 $action = $_POST['action'] ?? '';
+
+// 🚫 Validación de permisos: Lector solo puede usar "fetch"
+if ($role === 'lector' && $action !== 'fetch') {
+    echo json_encode(["error" => "No tienes permisos para realizar esta acción"]);
+    exit;
+}
 
 /* ================= FETCH (paginación + búsqueda) ================= */
 if ($action === 'fetch') {

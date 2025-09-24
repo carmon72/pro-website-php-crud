@@ -11,14 +11,20 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+$role   = $_SESSION['role'] ?? 'lector'; 
 $action = $_POST['action'] ?? null;
 
-// Si viene JSON (por ejemplo en create)
+// Si viene JSON
 if (empty($action)) {
     $input = json_decode(file_get_contents("php://input"), true);
     if ($input && isset($input['action'])) {
         $action = $input['action'];
     }
+}
+
+if ($role === 'lector' && $action !== 'fetch') {
+    echo json_encode(["error" => "No tienes permisos para realizar esta acción"]);
+    exit;
 }
 
 try {
@@ -34,7 +40,7 @@ try {
                 $clientes[] = $row;
             }
 
-            $resP = $conn->query("SELECT id, nombre, precio FROM productos ORDER BY nombre ASC");
+            $resP = $conn->query("SELECT id, nombre, marca, precio, stock FROM productos ORDER BY nombre ASC");
             while ($row = $resP->fetch_assoc()) {
                 $productos[] = $row;
             }
@@ -43,54 +49,75 @@ try {
             break;
         }
 
-        /* ================== Crear nueva venta ================== */
-        case 'create': {
-            $cliente_id = (int)($input['cliente_id'] ?? 0);
-            $items = $input['items'] ?? [];
+       /* ================== Crear nueva venta ================== */
+case 'create': {
+    $cliente_id = (int)($input['cliente_id'] ?? 0);
+    $items = $input['items'] ?? [];
+    $modalidad = $input['modalidad_pago'] ?? 'contado';
+    $abono = (float)($input['abono'] ?? 0);
 
-            if ($cliente_id <= 0) {
-                echo json_encode(['error' => 'Cliente no válido']);
-                exit;
-            }
-            if (empty($items)) {
-                echo json_encode(['error' => 'El carrito está vacío']);
-                exit;
-            }
+    // 👇 Solo asignamos fecha de vencimiento si es crédito
+    $fecha_vencimiento = null;
+    if ($modalidad === 'credito' && !empty($input['fecha_vencimiento'])) {
+        $fecha_vencimiento = $input['fecha_vencimiento'];
+    }
 
-            $conn->begin_transaction();
+    if ($cliente_id <= 0) {
+        echo json_encode(['error' => 'Cliente no válido']); exit;
+    }
+    if (empty($items)) {
+        echo json_encode(['error' => 'El carrito está vacío']); exit;
+    }
 
-            // Insertar venta (sin user_id)
-            $stmt = $conn->prepare("INSERT INTO ventas (cliente_id, fecha, total) VALUES (?, NOW(), 0)");
-            $stmt->bind_param("i", $cliente_id);
-            $stmt->execute();
-            $venta_id = $stmt->insert_id;
+    $conn->begin_transaction();
 
-            $total = 0;
-            $stmtItem = $conn->prepare("INSERT INTO ventas_items (venta_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)");
-            foreach ($items as $it) {
-                $pid = (int)$it['id'];
-                $cant = (int)$it['cantidad'];
-                $precio = (float)$it['precio'];
-                $subtotal = $cant * $precio;
-                $total += $subtotal;
+    // Calcular total
+    $total = 0;
+    foreach ($items as $it) {
+        $cant = (int)$it['cantidad'];
+        $precio = (float)$it['precio'];
+        $total += $cant * $precio;
+    }
 
-                $stmtItem->bind_param("iiid", $venta_id, $pid, $cant, $precio);
-                $stmtItem->execute();
+    // Insertar venta
+    $stmt = $conn->prepare("
+        INSERT INTO ventas (cliente_id, fecha, total, modalidad_pago, fecha_vencimiento) 
+        VALUES (?, NOW(), ?, ?, ?)
+    ");
+    $stmt->bind_param("idss", $cliente_id, $total, $modalidad, $fecha_vencimiento);
+    $stmt->execute();
+    $venta_id = $stmt->insert_id;
 
-                // Reducir stock del producto
-                $conn->query("UPDATE productos SET stock = stock - $cant WHERE id=$pid");
-            }
+    // Insertar items
+    $stmtItem = $conn->prepare("INSERT INTO ventas_items (venta_id, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)");
+    foreach ($items as $it) {
+        $pid = (int)$it['id'];
+        $cant = (int)$it['cantidad'];
+        $precio = (float)$it['precio'];
 
-            // Actualizar total de la venta
-            $stmtUpd = $conn->prepare("UPDATE ventas SET total=? WHERE id=?");
-            $stmtUpd->bind_param("di", $total, $venta_id);
-            $stmtUpd->execute();
+        $stmtItem->bind_param("iiid", $venta_id, $pid, $cant, $precio);
+        $stmtItem->execute();
 
-            $conn->commit();
+        // Reducir stock
+        $conn->query("UPDATE productos SET stock = stock - $cant WHERE id=$pid");
+    }
 
-            echo json_encode(['success' => true, 'venta_id' => $venta_id]);
-            break;
-        }
+    // Insertar pagos
+    if ($modalidad === 'contado') {
+        $stmtPago = $conn->prepare("INSERT INTO ventas_pagos (venta_id, monto, fecha_pago) VALUES (?, ?, NOW())");
+        $stmtPago->bind_param("id", $venta_id, $total);
+        $stmtPago->execute();
+    } elseif ($modalidad === 'credito' && $abono > 0) {
+        $stmtPago = $conn->prepare("INSERT INTO ventas_pagos (venta_id, monto, fecha_pago) VALUES (?, ?, NOW())");
+        $stmtPago->bind_param("id", $venta_id, $abono);
+        $stmtPago->execute();
+    }
+
+    $conn->commit();
+
+    echo json_encode(['success' => true, 'venta_id' => $venta_id]);
+    break;
+}
 
         /* ================== Historial de ventas ================== */
         case 'fetch': {
@@ -98,14 +125,23 @@ try {
             $perPage = 5;
             $offset = ($page - 1) * $perPage;
 
+            // Total de ventas para la paginación
             $resTotal = $conn->query("SELECT COUNT(*) AS cnt FROM ventas");
             $total = (int)$resTotal->fetch_assoc()['cnt'];
             $pages = max(1, ceil($total / $perPage));
 
+            // Consulta principal con marcas
             $sql = "
-                SELECT v.id, c.nombre AS cliente, v.fecha, v.total
+                SELECT v.id, c.nombre AS cliente, v.fecha, v.total, v.modalidad_pago, v.fecha_vencimiento,
+                       GROUP_CONCAT(DISTINCT pr.marca SEPARATOR ', ') AS marcas, -- 👈 concatenamos marcas
+                       IFNULL(SUM(pg.monto),0) AS pagado,
+                       (v.total - IFNULL(SUM(pg.monto),0)) AS saldo
                 FROM ventas v
                 JOIN clientes c ON v.cliente_id = c.id
+                JOIN ventas_items vi ON vi.venta_id = v.id
+                JOIN productos pr ON vi.producto_id = pr.id
+                LEFT JOIN ventas_pagos pg ON v.id = pg.venta_id
+                GROUP BY v.id
                 ORDER BY v.id DESC
                 LIMIT $offset, $perPage
             ";

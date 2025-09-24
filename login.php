@@ -21,7 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['role']     = $user['role'];
         require_once 'auth.php';
         init_auth();
-        header("Location: index.php?page=dashboard");
+
+        // 🔄 En lugar de redirigir directo al index.php
+        echo "<script>
+            localStorage.setItem('redirect', 'index.php?page=dashboard');
+            window.location.href = 'loader.php';
+        </script>";
         exit;
     } else {
         $error = "Usuario o contraseña incorrectos";

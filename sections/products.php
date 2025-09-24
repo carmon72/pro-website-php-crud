@@ -13,6 +13,10 @@ if (!isset($_SESSION['user_id'])) {
     <!-- Formulario -->
     <form id="form-producto" enctype="multipart/form-data" class="form-grid">
     <input type="text" id="prod-nombre" name="nombre" placeholder="Nombre del producto" required>
+    <div class="autocomplete-wrapper">
+    <input type="text" name="marca" id="prod-marca" placeholder="Escribe la marca..." required>
+    <div id="marca-suggestions" class="suggestions"></div>
+    </div>
     <input type="text" id="prod-categoria" name="categoria" placeholder="Categoría" required>
     <input type="number" id="prod-precio" name="precio" placeholder="Precio" min="0" step="0.01" required>
     <input type="number" id="prod-stock" name="stock" placeholder="Stock" min="0" required>
@@ -33,6 +37,7 @@ if (!isset($_SESSION['user_id'])) {
             <tr>
                 <th>ID</th>
                 <th>Nombre</th>
+                <th>Marca</th> <!-- 👈 Nueva columna -->
                 <th>Categoría</th>
                 <th>Precio</th>
                 <th>Stock</th>
